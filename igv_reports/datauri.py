@@ -1,10 +1,13 @@
 
 from base64 import b64encode
-from gzip import compress
+import gzip
+import StringIO
 import argparse
-from . import utils
-from .regions import parse_region
-
+import sys
+from os import path
+sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+import utils
+from regions import parse_region
 
 #This module exports functions to convert text or binary data to a data URI readable by igv.js.
 
@@ -14,8 +17,11 @@ def get_data_uri(data):
     Return a data uri for the input, which can be either a string or byte array
     """
 
-    if isinstance(data, str):
-        data = compress(data.encode())
+    if not isinstance(data, str):
+        #data = compress(data.encode())
+	out = StringIO.StringIO()
+	gzip_s = gzip.GzipFile(fileobj=out, mode="w")
+        data = gzip_s.write(data)
         mediatype = "data:application/gzip"
     else:
         if data[0] == 0x1f and data[1] == 0x8b:
@@ -23,6 +29,7 @@ def get_data_uri(data):
         else:
             mediatype = "data:application:octet-stream"
 
+    print data
     enc_str = b64encode(data)
 
     data_uri = mediatype + ";base64," + str(enc_str)[2:-1]

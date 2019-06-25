@@ -1,7 +1,7 @@
 import io
 import gzip
 import requests
-from . import feature, bam, vcf
+import feature, bam, vcf
 
 
 
